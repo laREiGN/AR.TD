@@ -14,6 +14,7 @@ public class ARController : MonoBehaviour
     private List<ARRaycastHit> hits = new();
 
     //TODO: Make script LevelPlacer or something like that
+    //TODO: Make this only listen for one placement click (maybe a button somewhere to reset, or a double tap/hold to place again?)
 
     private void Awake()
     {
