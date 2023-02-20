@@ -26,7 +26,6 @@ public class ToggleAR : MonoBehaviour
 
     private void Start()
     {
-        settings = XRGeneralSettings.Instance.Manager;
         session = ARController.GetComponentInChildren<ARSession>();
     }
     private void Update()
