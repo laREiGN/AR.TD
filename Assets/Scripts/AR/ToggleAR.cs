@@ -22,6 +22,9 @@ public class ToggleAR : MonoBehaviour
     private XRManagerSettings settings;
     private ARSession session;
 
+    // TODO: Replace our level at 0,0,0 when toggling AR off so that there is no random floaty world anywhere.
+    // TODO: See if we can remove the level from AR plane fully when toggling off AR
+
     private void Start()
     {
         settings = XRGeneralSettings.Instance.Manager;
@@ -57,7 +60,7 @@ public class ToggleAR : MonoBehaviour
             // Enable and initialize our AR stuff
             ARController.gameObject.SetActive(true);
             session.enabled = true;
-            settings.InitializeLoaderSync();
+            session.Reset();
         }
         else
         {
@@ -65,8 +68,6 @@ public class ToggleAR : MonoBehaviour
             mainCamera.gameObject.SetActive(true);
 
             // Disable out AR stuff
-            settings.DeinitializeLoader();
-            session.Reset();
             session.enabled = false;
             ARController.gameObject.SetActive(false);
         }
