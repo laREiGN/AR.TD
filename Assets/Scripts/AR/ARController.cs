@@ -6,15 +6,12 @@ using EnhancedTouch = UnityEngine.InputSystem.EnhancedTouch;
 
 public class ARController : MonoBehaviour
 {
-    public Transform levelObject;
+    public GameObject levelContainer;
 
     private ARRaycastManager raycastManager;
     private ARPlaneManager planeManager;
     private Camera ARCamera;
     private List<ARRaycastHit> hits = new();
-
-    //TODO: Make script LevelPlacer or something like that
-    //TODO: Make this only listen for one placement click (maybe a button somewhere to reset, or a double tap/hold to place again?)
 
     private void Awake()
     {
@@ -40,6 +37,7 @@ public class ARController : MonoBehaviour
     private void PlaceLevel(EnhancedTouch.Finger finger)
     {
         if (finger.index != 0) return; // Only listen to our first touch
+        if (levelContainer.activeSelf) return; // Only listen if world is not active already
 
         if (raycastManager.Raycast(finger.currentTouch.screenPosition, hits,
             TrackableType.PlaneWithinPolygon))
@@ -48,16 +46,17 @@ public class ARController : MonoBehaviour
             if (hit != null)
             {
                 Pose pose = hit.pose;
-                levelObject.SetPositionAndRotation(pose.position, pose.rotation);
+                levelContainer.SetActive(true);
+                levelContainer.transform.SetPositionAndRotation(pose.position, pose.rotation);
                 if (planeManager.GetPlane(hit.trackableId).alignment == PlaneAlignment.HorizontalUp)
                 {
-                    Vector3 position = levelObject.transform.position;
+                    Vector3 position = levelContainer.transform.position;
                     Vector3 cameraPosition = ARCamera.transform.position;
                     Vector3 direction = cameraPosition - position;
                     Vector3 targetRotationEuler = Quaternion.LookRotation(direction).eulerAngles;
-                    Vector3 scaledEuler = Vector3.Scale(targetRotationEuler, levelObject.transform.up.normalized); // (0, 1, 0)
+                    Vector3 scaledEuler = Vector3.Scale(targetRotationEuler, levelContainer.transform.up.normalized); // (0, 1, 0)
                     Quaternion targetRotation = Quaternion.Euler(scaledEuler);
-                    levelObject.transform.rotation = levelObject.transform.rotation * targetRotation;
+                    levelContainer.transform.rotation = levelContainer.transform.rotation * targetRotation;
                 }
             }
         }

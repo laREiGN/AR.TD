@@ -1,28 +1,24 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.XR.ARFoundation;
-using UnityEngine.XR.Management;
 
-public class ToggleAR : MonoBehaviour
+public class ARToggle : MonoBehaviour
 {
+    [Header("Game Objects")]
+    [SerializeField] GameObject levelContainer;
+
     [Header("State Objects")]
     [SerializeField] Camera mainCamera;
     [SerializeField] ARController ARController;
-
-    [Header("State Variables")]
-    [SerializeField] bool ARIsEnabled;
 
     [Header("Toggle Button")]
     [SerializeField] Image toggleButtonFill;
     [SerializeField] Color enabledColor;
     [SerializeField] Color disabledColor;
 
-    private ARSession session;
+    [HideInInspector] public bool ARIsEnabled;
 
-    // TODO: Replace our level at 0,0,0 when toggling AR off so that there is no random floaty world anywhere.
-    // TODO: See if we can remove the level from AR plane fully when toggling off AR so it does not appear somewhere random
+    private ARSession session;
 
     private void Start()
     {
@@ -55,6 +51,9 @@ public class ToggleAR : MonoBehaviour
             // Disable our in game camera
             mainCamera.gameObject.SetActive(false);
 
+            // Disable our level till we wait for first click
+            levelContainer.SetActive(false);
+
             // Enable and initialize our AR stuff
             ARController.gameObject.SetActive(true);
             session.enabled = true;
@@ -62,6 +61,10 @@ public class ToggleAR : MonoBehaviour
         }
         else
         {
+            // Enable our level and zero our position
+            levelContainer.SetActive(true);
+            levelContainer.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.Euler(Vector3.zero));
+
             // Enable our in game camra
             mainCamera.gameObject.SetActive(true);
 
