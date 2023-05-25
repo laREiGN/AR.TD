@@ -6,6 +6,7 @@ using EnhancedTouch = UnityEngine.InputSystem.EnhancedTouch;
 
 public class ARController : MonoBehaviour
 {
+    public GameLoopManager gameLoopManager;
     public GameObject levelContainer;
 
     private ARRaycastManager raycastManager;
@@ -27,17 +28,9 @@ public class ARController : MonoBehaviour
         EnhancedTouch.Touch.onFingerDown += PlaceLevel;
     }
 
-    private void OnDisable()
-    {
-        EnhancedTouch.TouchSimulation.Disable();
-        EnhancedTouch.EnhancedTouchSupport.Disable();
-        EnhancedTouch.Touch.onFingerDown -= PlaceLevel;
-    }
-
     private void PlaceLevel(EnhancedTouch.Finger finger)
     {
         if (finger.index != 0) return; // Only listen to our first touch
-        if (levelContainer.activeSelf) return; // Only listen if world is not active already
 
         if (raycastManager.Raycast(finger.currentTouch.screenPosition, hits,
             TrackableType.PlaneWithinPolygon))
@@ -46,7 +39,6 @@ public class ARController : MonoBehaviour
             if (hit != null)
             {
                 Pose pose = hit.pose;
-                levelContainer.SetActive(true);
                 levelContainer.transform.SetPositionAndRotation(pose.position, pose.rotation);
                 if (planeManager.GetPlane(hit.trackableId).alignment == PlaneAlignment.HorizontalUp)
                 {
@@ -58,6 +50,12 @@ public class ARController : MonoBehaviour
                     Quaternion targetRotation = Quaternion.Euler(scaledEuler);
                     levelContainer.transform.rotation = levelContainer.transform.rotation * targetRotation;
                 }
+                gameLoopManager.Reload();
+                Time.timeScale = 1;
+
+                EnhancedTouch.Touch.onFingerDown -= PlaceLevel;
+                EnhancedTouch.EnhancedTouchSupport.Disable();
+                EnhancedTouch.TouchSimulation.Disable();
             }
         }
     }

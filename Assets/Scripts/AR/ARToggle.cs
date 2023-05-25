@@ -5,6 +5,7 @@ using UnityEngine.XR.ARFoundation;
 public class ARToggle : MonoBehaviour
 {
     [Header("Game Objects")]
+    [SerializeField] GameLoopManager gameLoopManager;
     [SerializeField] GameObject levelContainer;
 
     [Header("State Objects")]
@@ -16,7 +17,7 @@ public class ARToggle : MonoBehaviour
     [SerializeField] Color enabledColor;
     [SerializeField] Color disabledColor;
 
-    [HideInInspector] public bool ARIsEnabled;
+    [HideInInspector] public static bool ARIsEnabled;
 
     private ARSession session;
 
@@ -51,8 +52,10 @@ public class ARToggle : MonoBehaviour
             // Disable our in game camera
             mainCamera.gameObject.SetActive(false);
 
-            // Disable our level till we wait for first click
-            levelContainer.SetActive(false);
+            // "Hide" our level and pause the game while we wait for first click
+            Time.timeScale = 0;
+            Vector3 hiddenPosition = new Vector3(0, 1000, 0);
+            levelContainer.transform.SetPositionAndRotation(hiddenPosition, Quaternion.Euler(Vector3.zero));
 
             // Enable and initialize our AR stuff
             ARController.gameObject.SetActive(true);
@@ -61,9 +64,10 @@ public class ARToggle : MonoBehaviour
         }
         else
         {
-            // Enable our level and zero our position
-            levelContainer.SetActive(true);
-            levelContainer.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.Euler(Vector3.zero));
+            // Zero our position and play the game
+            levelContainer.transform.SetPositionAndRotation(Vector3.zero, Quaternion.Euler(Vector3.zero));
+            gameLoopManager.Reload();
+            Time.timeScale = 1;
 
             // Enable our in game camra
             mainCamera.gameObject.SetActive(true);
